@@ -2,11 +2,17 @@ const express = require('express');
 
 const app = express();
 
-app.use("/hello",(req,res)=>{
-    res.send('hello from the server')
+app.get('/test',(req,res)=>{
+    res.send({userName:'Vaibhav',age:25})
 })
-app.use("/",(req,res)=>{
-    res.send('base of server')
+app.post('/test',(req,res)=>{
+    res.send('user added')
+})
+app.put('/test',(req,res)=>{
+    res.send('user updated')
+})
+app.delete('/test',(req,res)=>{
+    res.send('user deleted')
 })
 
 app.listen(4000,()=>{
