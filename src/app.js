@@ -1,18 +1,20 @@
 const express = require('express');
+const {adminAuth, userAuth}= require('./middlewares/auth')
 
 const app = express();
 
-app.get('/test',(req,res)=>{
-    res.send({userName:'Vaibhav',age:25})
+app.use('/admin',adminAuth)
+
+app.get('/admin/getAllData',(req,res)=>{
+    res.send('All data sent')
 })
-app.post('/test',(req,res)=>{
-    res.send('user added')
+
+app.post('/user/login',(req,res)=>{
+    res.send('User logged in')
 })
-app.put('/test',(req,res)=>{
-    res.send('user updated')
-})
-app.delete('/test',(req,res)=>{
-    res.send('user deleted')
+
+app.get('/user/getProfile',userAuth,(req,res)=>{
+    res.send('User Profile sent')
 })
 
 app.listen(4000,()=>{
