@@ -1,8 +1,24 @@
 const express = require("express");
-const { adminAuth, userAuth } = require("./middlewares/auth");
 const connectDB = require("./config/database");
+const User = require("./models/user");
 
 const app = express();
+
+app.post("/signup", async (req, res) => {
+  const user = new User({
+    firstName: "Virat",
+    lastName: "Kohli",
+    email: "virat@gmail.com",
+    password: "virat@123",
+  });
+
+  try {
+    user.save();
+    res.send("User saved successfully!");
+  } catch (err) {
+    res.status(400).send("Error saving user: " + err.message);
+  }
+});
 
 connectDB()
   .then(() => {
