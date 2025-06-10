@@ -48,6 +48,7 @@ app.patch("/user", async (req, res) => {
   try {
     const response = await User.findByIdAndUpdate(userId, req.body, {
       returnDocument: "after",
+      runValidators: true,
     });
     res.send(response);
   } catch (err) {
@@ -58,7 +59,11 @@ app.patch("/user", async (req, res) => {
 //update user with email
 app.patch("/userByEmail", async (req, res) => {
   try {
-    const updated = await User.findOneAndUpdate({ email: req.body.email }, req.body);
+    const updated = await User.findOneAndUpdate(
+      { email: req.body.email },
+      req.body,
+      { runValidators: true }
+    );
     res.send(`User updated`);
   } catch (err) {
     res.status(400).send("Error saving user: " + err.message);
