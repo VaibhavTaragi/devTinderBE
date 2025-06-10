@@ -55,6 +55,16 @@ app.patch("/user", async (req, res) => {
   }
 });
 
+//update user with email
+app.patch("/userByEmail", async (req, res) => {
+  try {
+    const updated = await User.findOneAndUpdate({ email: req.body.email }, req.body);
+    res.send(`User updated`);
+  } catch (err) {
+    res.status(400).send("Error saving user: " + err.message);
+  }
+});
+
 connectDB()
   .then(() => {
     console.log("DB connection successfull");
