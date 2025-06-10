@@ -11,6 +11,9 @@ app.post("/signup", async (req, res) => {
   const user = new User(req.body);
 
   try {
+    if (req.body?.skills?.length > 10) {
+      throw new Error("Skills can not be more than 10");
+    }
     await user.save();
     res.send("User saved successfully!");
   } catch (err) {
@@ -46,6 +49,16 @@ app.get("/feed", async (req, res) => {
 app.patch("/user", async (req, res) => {
   const userId = req.body.userId;
   try {
+    const allowedToUpdate = ["age", "gender", "lastName", "password", "userId"];
+    const isUpdateReqestedValid = Object.keys(req.body).every((i) =>
+      allowedToUpdate.includes(i)
+    );
+    if (!isUpdateReqestedValid) {
+      throw new Error("Invalid request");
+    }
+    if (req.body?.skills?.length > 10) {
+      throw new Error("Skills can not be more than 10");
+    }
     const response = await User.findByIdAndUpdate(userId, req.body, {
       returnDocument: "after",
       runValidators: true,
@@ -59,6 +72,16 @@ app.patch("/user", async (req, res) => {
 //update user with email
 app.patch("/userByEmail", async (req, res) => {
   try {
+    const allowedToUpdate = ["age", "gender", "lastName", "password", "userId"];
+    const isUpdateReqestedValid = Object.keys(req.body).every((i) =>
+      allowedToUpdate.includes(i)
+    );
+    if (!isUpdateReqestedValid) {
+      throw new Error("Invalid request");
+    }
+    if (req.body?.skills?.length > 10) {
+      throw new Error("Skills can not be more than 10");
+    }
     const updated = await User.findOneAndUpdate(
       { email: req.body.email },
       req.body,
