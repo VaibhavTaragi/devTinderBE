@@ -116,11 +116,14 @@ app.post("/login", async (req, res) => {
     if (!userInfo.length) {
       throw new Error("Invalid Credentials");
     }
-    const isPasswordValid = await bcrypt.compare(password, userInfo[0].password);
-    if(!isPasswordValid){
+    const isPasswordValid = await bcrypt.compare(
+      password,
+      userInfo[0].password
+    );
+    if (!isPasswordValid) {
       throw new Error("Invalid Credentials");
     }
-    res.send("Logged in successfully")
+    res.send("Logged in successfully");
   } catch (err) {
     res.status(400).send("Error : " + err.message);
   }
