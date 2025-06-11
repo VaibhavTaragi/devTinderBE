@@ -1,5 +1,7 @@
 const express = require("express");
 const connectDB = require("./config/database");
+const { validateSignUp } = require("./utils/validation");
+const bcrypt = require("bcrypt");
 const User = require("./models/user");
 
 const app = express();
@@ -8,16 +10,29 @@ app.use(express.json());
 
 //signup api
 app.post("/signup", async (req, res) => {
-  const user = new User(req.body);
-
   try {
+    //Vaidate req data
+    validateSignUp(req);
+
+    const { firstName, lastName, email, password } = req.body;
+    //Encrypt the password
+    const hashedPass = await bcrypt.hash(password, 10);
+
+    //Save the data
+    const user = new User({
+      firstName,
+      lastName,
+      email,
+      password: hashedPass,
+    });
     if (req.body?.skills?.length > 10) {
       throw new Error("Skills can not be more than 10");
     }
+
     await user.save();
     res.send("User saved successfully!");
   } catch (err) {
-    res.status(400).send("Error saving user: " + err.message);
+    res.status(400).send("ERROR : " + err.message);
   }
 });
 
@@ -90,6 +105,24 @@ app.patch("/userByEmail", async (req, res) => {
     res.send(`User updated`);
   } catch (err) {
     res.status(400).send("Error saving user: " + err.message);
+  }
+});
+
+//login api
+app.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const userInfo = await User.find({ email });
+    if (!userInfo.length) {
+      throw new Error("Invalid Credentials");
+    }
+    const isPasswordValid = await bcrypt.compare(password, userInfo[0].password);
+    if(!isPasswordValid){
+      throw new Error("Invalid Credentials");
+    }
+    res.send("Logged in successfully")
+  } catch (err) {
+    res.status(400).send("Error : " + err.message);
   }
 });
 
