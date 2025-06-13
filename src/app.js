@@ -2,11 +2,14 @@ const express = require("express");
 const connectDB = require("./config/database");
 const { validateSignUp } = require("./utils/validation");
 const bcrypt = require("bcrypt");
+const cookieParser = require("cookie-parser");
 const User = require("./models/user");
+const { userAuth } = require("./middlewares/auth");
 
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser());
 
 //signup api
 app.post("/signup", async (req, res) => {
@@ -51,7 +54,7 @@ app.get("/user", async (req, res) => {
 });
 
 //feed api - all users
-app.get("/feed", async (req, res) => {
+app.get("/feed", userAuth, async (req, res) => {
   try {
     const users = await User.find({});
     users.length ? res.send(users) : res.status(400).send("No Users in DB");
@@ -116,17 +119,35 @@ app.post("/login", async (req, res) => {
     if (!userInfo.length) {
       throw new Error("Invalid Credentials");
     }
-    const isPasswordValid = await bcrypt.compare(
-      password,
-      userInfo[0].password
-    );
+    const isPasswordValid = await userInfo[0].validatePassword(password)
     if (!isPasswordValid) {
       throw new Error("Invalid Credentials");
     }
+    const token = await userInfo[0].getJWT()
+    res.cookie("token", token, {
+      expires: new Date(Date.now() + 7 * 24 * 3600000),
+    });
+
     res.send("Logged in successfully");
   } catch (err) {
     res.status(400).send("Error : " + err.message);
   }
+});
+
+//getProfile api
+app.get("/profile", userAuth, (req, res) => {
+  try {
+    const userInfo = req.user;
+    res.send(userInfo);
+  } catch (err) {
+    res.status(400).send("Error : " + err.message);
+  }
+});
+
+//sendConnection api
+app.post("/sendConnection", userAuth, (req, res) => {
+  const user = req.user;
+  res.send(user.firstName + " sent a connection request");
 });
 
 connectDB()
