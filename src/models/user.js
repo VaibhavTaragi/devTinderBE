@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 const jwt = require("jsonwebtoken");
-const bcrypt = require('bcrypt')
+const bcrypt = require("bcrypt");
 
 const userSchema = new mongoose.Schema(
   {
@@ -37,6 +37,15 @@ const userSchema = new mongoose.Schema(
         "Enter a strong password",
       ],
     },
+    skills: {
+      type: [String],
+      validate: [
+        (val) => {
+          return val.length <= 10;
+        },
+        "Skills cannot be more than 10",
+      ],
+    },
   },
   {
     timestamps: true,
@@ -48,14 +57,14 @@ userSchema.methods.getJWT = async function () {
   const token = await jwt.sign({ _id: user._id }, "myClientSecret", {
     expiresIn: "7d",
   });
-  return token
+  return token;
 };
 
-userSchema.methods.validatePassword = async function (userInputPassword){
-  const user = this
-  const passwordHash = user.password
-  const isPasswordValid = await bcrypt.compare(userInputPassword,passwordHash)
-  return isPasswordValid
-}
+userSchema.methods.validatePassword = async function (userInputPassword) {
+  const user = this;
+  const passwordHash = user.password;
+  const isPasswordValid = await bcrypt.compare(userInputPassword, passwordHash);
+  return isPasswordValid;
+};
 
 module.exports = mongoose.model("User", userSchema);
